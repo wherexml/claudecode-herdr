@@ -11,3 +11,5 @@ File preview behavior: see [docs/file-viewer.md](docs/file-viewer.md); Markdown 
 Translation settings use the encrypted server-side config described in docs/translation.md; GET must never reveal API keys. Preserve env fallback and both provider protocols.
 
 公开仓库为 `wherexml/claudecode-herdr`，保留上游归属，README 使用简体中文；发布边界见 AGENTS.md。
+
+CI socket 路径长度约束见 AGENTS.md 和 docs/publishing.zh.md。

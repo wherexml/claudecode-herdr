@@ -89,3 +89,5 @@ Translation settings use the encrypted server-side config described in docs/tran
 本仓库为 `wherexml/claudecode-herdr`，上游为 `devswha/herdr-web-ui`。保留上游 MIT 归属与历史；README 说明文字使用简体中文。上游网站和二进制发布工作流仅在上游执行，本仓库保留 CI 验证。公开提交不得包含本地凭据、验收对话或私人部署地址。
 
 公开发布说明见 [docs/publishing.zh.md](docs/publishing.zh.md)。
+
+CI 的 Herdr socket 使用短临时路径，不能放回包含仓库名两次的检出目录；保持配置目录与失败日志路径一致。

@@ -17,3 +17,5 @@
 构建与类型检查：`bun run typecheck`、`bun run build`。
 翻译接口与语言覆盖：`bun test ./server/translation.contract.test.ts ./src/lib/i18n.test.ts`（接口测试使用隔离临时状态，不操作用户窗格）。
 完整自动化以本仓库 GitHub Actions 的具体提交结果为准；本地受平台影响的失败应与 CI 分开记录。
+
+CI 的 Herdr 配置目录使用 `/tmp/hw-<运行编号>-<尝试编号>`，避免仓库检出路径重复仓库名后超过 Unix socket 路径长度限制；失败日志从此目录归档。

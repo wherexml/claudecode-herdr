@@ -60,7 +60,8 @@ jobs:
     timeout-minutes: 20
     env:
       HERDR_TEST_SESSION: ci-${{ github.run_id }}-${{ github.run_attempt }}
-      XDG_CONFIG_HOME: ${{ github.workspace }}/.ci-config
+      # Unix sockets have a short path limit; checkout paths contain the repository name twice.
+      XDG_CONFIG_HOME: /tmp/hw-${{ github.run_id }}-${{ github.run_attempt }}
       HERDR_WEB_STATE_DIR: ${{ github.workspace }}/.ci-state
       # One integration file at a time: four at once on the runner's four cores made the
       # timing-bound contract tests fail in turn. Raise it again once they hold under load.
@@ -99,5 +100,5 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: herdr-logs-${{ github.run_id }}-${{ github.run_attempt }}
-          path: .ci-config/herdr/sessions/*/test-server.log
+          path: ${{ env.XDG_CONFIG_HOME }}/herdr/sessions/*/test-server.log
           if-no-files-found: ignore
