@@ -1237,3 +1237,8 @@
   color: var(--text-dim);
   font-size: var(--fs-xs);
 }
+
+/* Prompt answers bypass translation. Keep their options and transcript visible on short screens. */
+.prompt-dock:not(:empty) ~ .composer .translation-controls {
+  display: none;
+}

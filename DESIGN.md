@@ -973,3 +973,5 @@ Markdown file previews use the chat Markdown typography inside the scrollable fi
 The file header includes an accent-colored Languages icon for on-demand Chinese translation; a tinted background indicates the translated view. It toggles back to the original without changing file contents.
 
 Translation settings appear above Voice input and reuse its grouped card and toggle styling. Existing keys appear as configured, never as plaintext.
+
+When a prompt card is open, hide the composer translation footer: prompt answers bypass translation and the card needs that height to keep its controls and transcript visible on short screens.
