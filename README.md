@@ -1,190 +1,111 @@
-# herdr web ui
+# claudecode-herdr：中文聊天与阅读定制版
 
-<p align="center">
-  <img src="public/icons/icon-192.png" alt="herdr web ui" width="100">
-</p>
+本仓库是 [devswha/herdr-web-ui](https://github.com/devswha/herdr-web-ui) 的定制分支，由 Steve 用于中文聊天与文档阅读场景，发布于 [wherexml/claudecode-herdr](https://github.com/wherexml/claudecode-herdr)。保留上游 MIT 许可与原作者 devswha 的归属。底层 herdr 引擎来自独立项目 [herdrdev/herdr](https://github.com/herdrdev/herdr)。
 
-<p align="center">
-  <strong>English</strong> · <a href="README.zh-CN.md">简体中文</a> · <a href="README.ja.md">日本語</a> · <a href="README.ko.md">한국어</a>
-</p>
+通过浏览器查看和操作已有 herdr 窗格，在聊天记录与实时终端之间切换。本版在上游能力上增加双向聊天翻译、翻译服务设置、Markdown 默认渲染、文档中文翻译和美西时钟。安装本定制版请使用下方源码步骤；上游安装脚本、插件安装入口和发布包不代表本仓库的定制版本。
 
-<p align="center">
-  <a href="https://devswha.github.io/herdr-web-ui/">website</a> ·
-  <a href="#install">install</a> ·
-  <a href="https://devswha.github.io/herdr-web-ui/demo/">try the demo</a> ·
-  <a href="docs/guide.md#quick-start">quick start</a> ·
-  <a href="#faq">faq</a> ·
-  <a href="#docs">docs</a>
-</p>
+## 各层负责什么
 
-<p align="center">
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-666666?labelColor=333333" alt="MIT license"></a>
-  <a href="https://github.com/devswha/herdr-web-ui/stargazers"><img src="https://img.shields.io/github/stars/devswha/herdr-web-ui?labelColor=333333&color=666666&logo=github" alt="GitHub stars"></a>
-  <a href="https://github.com/devswha/herdr-web-ui/releases/latest"><img src="https://img.shields.io/github/v/release/devswha/herdr-web-ui?label=release&labelColor=333333&color=666666" alt="Latest release"></a>
-  <a href="https://github.com/herdrdev/herdr"><img src="https://img.shields.io/badge/herdr-0.9.0%2B-666666?labelColor=333333" alt="herdr 0.9.0+"></a>
-  <a href="docs/guide.md#on-your-phone"><img src="https://img.shields.io/badge/PWA-installable-666666?labelColor=333333" alt="Installable PWA"></a>
-</p>
+| 层次 | 职责 | 认证与配置 |
+| --- | --- | --- |
+| Herdr 引擎 | 持有终端、滚动历史、工作区和 Agent 状态 | Web 后端通过指定的 Unix socket 连接已有会话 |
+| Web 界面与后端 | 展示聊天、终端、文件和审批交互，桥接浏览器与 Herdr | 浏览器访问控制属于 Web 层；SSH 隧道只提供访问通道 |
+| Agent | Claude Code、Codex 等在 Herdr 窗格中运行，调用各自模型 | 使用各自的登录、订阅或 API 配置，需单独完成认证 |
+| 翻译服务 | 把聊天文本译为英文、回复与文档译为简体中文 | 使用单独的协议、URL、API Key 和模型设置 |
 
----
+配置翻译 API 不会替 Claude Code 或 Codex 登录，也不会改变 Agent 使用的模型。语音转写同样使用浏览器或既有转写服务的配置。
 
-https://github.com/user-attachments/assets/db788c07-cd68-486d-8ce9-e676a2889c2d
+## 本版新增能力
 
-<p align="center"><sub>Claude Code asks in herdr's terminal; the browser and the phone show the same question, and one tap on the phone answers it · recorded live, no cuts</sub></p>
+- **双向聊天翻译**：默认关闭。开启后，普通输入以及语音转写得到的文字在发送时译为英文；已完成且进入可见区域的 Agent 正文译为简体中文，可展开原文。译文不覆盖原始会话记录。
+- **保留交互语义**：终端输入、审批操作、工具输出和斜杠命令不翻译；代码围栏、内联代码、URL 与附件路径有保护处理。排队消息保留原文，只有明确点击“立即发送”才按当前模式处理。翻译失败保留草稿；切换窗格或断线会取消待发送的翻译。
+- **可配置翻译协议**：设置页支持 OpenAI 的聊天补全协议和 Anthropic 的消息协议，可填写服务地址及模型，不绑定某个模型供应商。
+- **Markdown 默认渲染**：文件阅读器打开 `.md`、`.markdown`、`.mdown`、`.mkd` 时默认排版阅读，可切换源码；普通文本仍按原文预览。Markdown 不执行原始 HTML。
+- **文档中文翻译**：点击文件标题栏的翻译图标，翻译当前文本预览，再次点击可切回原文。它与聊天翻译开关独立，共用翻译服务配置；长文按段顺序处理，代码围栏保留原文，不改写文件或下载内容。
+- **美西时钟**：聊天输入区显示 `America/Los_Angeles` 时间，自动处理夏令时。绿色表示 08:00–18:59，黄色表示 06:00–07:59 和 19:00–次日 00:59，红色表示 01:00–05:59。表情只提示时段，不限制发送或调度 Agent。
 
-**Claude Code and Codex, from your phone.**
+文本文件预览上限为 **256 KiB**；超限时显示截断提示，文档翻译只处理当前预览部分。单次翻译请求上限为 24,000 字符，服务端最长等待 90 秒，同时最多处理 4 个请求。
 
-A browser and phone client for [herdr](https://github.com/herdrdev/herdr). Read and reply to the same agent sessions running on your computer — on desktop or phone, as chat, with the terminal when you need it.
+语音输入复用浏览器语音识别或已有转写服务，先得到文字，再由文本翻译接口处理；翻译 API 不直接识别音频。需要主动点击麦克风，识别准确度取决于转写服务。
 
-<table>
-  <tr>
-    <td width="50%" valign="top">
-      <a href="https://github.com/user-attachments/assets/33ed2183-9b94-4677-8980-edd90d45750a"><img src="docs/media/readme/terminal.webp" width="100%" alt="Live recording. The browser shows Claude Code's reply in Chat; a click on Terminal shows the same pane as Claude Code's own terminal, with its edit adding the test &quot;unknown refund is 404&quot; to src/server.test.ts. On the phone, in the tests tab's terminal, ↑ on the key bar brings back bun test and the input line's Enter button runs it: 5 pass, 0 fail."></a>
-      <br><b>Switch to the live terminal</b>
-      <br><sub>One click turns the chat into the pane's real terminal; on the phone, ↑ on the key bar brings back the test command and Enter runs it again.</sub>
-    </td>
-    <td width="50%" valign="top">
-      <a href="https://github.com/user-attachments/assets/ac8dbf34-5c27-441b-8e49-e3850eac0c27"><img src="docs/media/readme/layout.webp" width="100%" alt="Live recording. The browser shows herdr's layout: four workspaces in the sidebar with their agent states (checkout-api DONE, web-dashboard RUN, infra READY, release), and checkout-api's tabs payments and dev. A click on the dev tab shows its first pane, bun test with 4 pass; the tab's pane menu lists the split's two panes, tests and git, and a click on git shows its git log. On the phone, ☰ opens the same four workspaces with the same states, and a tap on checkout-api opens Claude's chat: &quot;What does this repo do? Answer in one line.&quot; and its answer."></a>
-      <br><b>Your herdr layout, in the browser</b>
-      <br><sub>Every workspace, tab and split pane, with each agent's state: click a tab, pick a pane of a split, or switch workspaces from the phone.</sub>
-    </td>
-  </tr>
-  <tr>
-    <td width="50%" valign="top">
-      <a href="https://github.com/user-attachments/assets/804ed0e1-54e6-4c1a-9d87-bd769a970315"><img src="docs/media/readme/alerts.webp" width="100%" alt="Live recording. The phone shows another workspace's terminal while Claude works on checkout-api in the browser. When Claude asks which rate limit to use, an alert reading &quot;checkout-api Needs input&quot; drops in on the phone and a tap opens the question as a card; the browser lists checkout-api under Needs you with the same card."></a>
-      <br><b>Know when an agent needs you</b>
-      <br><sub>On another workspace, an alert drops in when Claude asks; one tap opens its question.</sub>
-    </td>
-    <td width="50%" valign="top">
-      <a href="https://github.com/user-attachments/assets/25e55478-354b-4c5d-a33a-c1158f4b819a"><img src="docs/media/readme/attach.webp" width="100%" alt="Live recording. On the phone, the paperclip attaches a screenshot of a receipt showing $NaN and inserts its path, then &quot;Fix this, with a test.&quot; is sent; the same message with the image appears in the desktop's chat, and Claude starts by reading src/routes/receipt.ts."></a>
-      <br><b>Send a screenshot from your phone</b>
-      <br><sub>The paperclip uploads it into the pane's folder and adds its path; Claude reads the image.</sub>
-    </td>
-  </tr>
-  <tr>
-    <td width="50%" valign="top">
-      <a href="https://github.com/user-attachments/assets/b410d41c-a822-47fe-94a5-88becab9b235"><img src="docs/media/readme/open.webp" width="100%" alt="Live recording. In the browser's terminal, Claude Code has written bench/p95.svg; a click on the path opens the chart in the file viewer, and a tap on the same path in the phone's chat opens it full screen."></a>
-      <br><b>Open what the agent made</b>
-      <br><sub>Click a path in the terminal, or tap it in the chat: the file opens right there.</sub>
-    </td>
-    <td width="50%" valign="top">
-      <a href="https://github.com/user-attachments/assets/3a50f082-d13a-4a88-b2a4-7bc050e8a47a"><img src="docs/media/readme/worktree.webp" width="100%" alt="Live recording. On the phone, checkout-api's ⋯ menu → New worktree opens a form with the branch worktree/clear-forest-3580 already filled in; Claude Code is picked and Create worktree is tapped, and in the browser a new row appears nested under checkout-api, becomes Claude Code and shows READY."></a>
-      <br><b>Branch off a second agent</b>
-      <br><sub>From the phone, ⋯ → New worktree: the branch is filled in, pick an agent, and it starts beside the first.</sub>
-    </td>
-  </tr>
-</table>
+## 从源码运行
 
-<p align="center"><sub>Each clip is a live recording of the desktop and a phone at once, in real time with no cuts. Click one for the full video.</sub></p>
-
-- **Chat and terminal, one pane** — native Claude Code, Codex, omp, omo, gjc and pi transcripts, with the live terminal a click away. [Supported agents →](docs/guide.md#supported-agents)
-- **Approve with a tap** — approvals, questions and plan menus become cards, checked to be current before your answer is sent.
-- **Know when you're needed** — live status for every pane, an alert that drops in while the app is open, and push alerts when an agent needs input or finishes, even with the app closed.
-- **Install it on your phone** — a PWA with Esc, Tab, Ctrl, Alt and arrows above the keyboard, and a QR code to your Tailscale address. [Phone setup →](docs/guide.md#on-your-phone)
-- **Speak instead of typing** — dictate into the chat or the terminal line, Korean and English mixed. Review the words before sending them to the agent; transcription uses your own OpenAI key or the browser's speech recognition.
-- **Keep your workflow** — herdr owns the agents; this app connects to them. Update from Settings without stopping them. New tabs and worktrees come from a row's ⋯ menu. [All features →](docs/guide.md#features)
-
----
-
-## install
+以下以 Linux 或 macOS、**Bun 1.4.2、Node.js 22、Herdr 0.9.3** 为运行前提。Node.js 用于终端连接的独立进程。先安装这些依赖，并在 Herdr 中准备好已有会话和需要使用的 Agent；Agent 的模型认证需自行配置。
 
 ```bash
-curl -fsSL https://devswha.github.io/herdr-web-ui/install.sh | sh
+git clone https://github.com/wherexml/claudecode-herdr.git
+cd claudecode-herdr
+bun install --frozen-lockfile
+bun run build
 ```
 
-Linux (x64, arm64) or macOS. Installs missing herdr 0.9.0+, Bun 1.4+ and Node 18+ prerequisites for your user, then installs the app as a herdr plugin. If an existing herdr installation is older than 0.9.0, update and restart herdr yourself before rerunning the installer. With the default listen address and Tailscale running, successful HTTPS setup provides a tailnet address and QR code.
-
-Windows x64, in PowerShell:
-
-```powershell
-irm https://devswha.github.io/herdr-web-ui/install.ps1 | iex
-```
-
-Requires [Git for Windows](https://git-scm.com/download/win). Installs missing herdr and Bun for your user, then installs the same plugin. No Node or WSL is needed. Open **Phone setup** in herdr for phone access. Windows terminals use the [screen mirror](docs/remote-pcs.md#windows-pcs), with typing and a fixed grid, until herdr supports terminal attach there.
-
-<p align="center">
-  <img src="docs/screenshots/install.png" width="720" alt="Installer output: Bun, Node and the herdr plugin install, then tailscale serve publishes the app and a QR code for the phone appears.">
-</p>
-
-Already have the prerequisites? Install just the plugin:
+指定要连接的**已有会话** socket。以下为通用 Linux 示例，`user` 和 `existing-session` 都是占位值；请替换为实际用户名和已有会话名。macOS 或设置了 `XDG_CONFIG_HOME` 的环境应使用对应的实际 socket 路径。
 
 ```bash
-herdr plugin install devswha/herdr-web-ui
+export HERDR_SOCKET=/home/user/.config/herdr/sessions/existing-session/herdr.sock
+HOST=127.0.0.1 PORT=17317 HERDR_WEB_AUTO_UPDATE=0 bun run server/index.ts
 ```
 
-With herdr running, open **[localhost:7317](http://localhost:7317)**. Pick a pane or start an agent with **New workspace**. To use your phone, scan the installer's QR code and add the app to your home screen. [Quick start →](docs/guide.md#quick-start)
+在运行 Web 后端的机器上打开 [本地界面](http://127.0.0.1:17317)。后端使用构建好的 `dist/`，并连接所指定的 Herdr 会话；上述步骤不创建或终止用户的 Herdr 会话。
 
-The server listens on `127.0.0.1` by default. For access from another device, see [phone setup](docs/guide.md#on-your-phone) and [access and safety](docs/guide.md#access-and-safety).
+此启动方式直接运行源码后端，不经过自动更新管理进程；同时显式关闭自动更新。更新本定制版应检查本仓库改动后重新安装依赖、构建并重启 Web 进程，不要用上游更新入口替换定制代码。
 
-## faq
+## 配置翻译
 
-**Can I use Claude Code or Codex from my phone?**
+推荐打开设置页的翻译区域，填写协议、API 基础 URL、API Key 和模型 ID，保存后再开启聊天翻译。
 
-Yes. Run the agent in a [herdr](https://github.com/herdrdev/herdr) pane on your computer, and this app shows the same pane in your phone's browser: the agent's own transcript as a chat, its approvals and questions as cards you tap, and the live terminal a tap away. It installs to the home screen as a PWA and sends a push alert when an agent needs you. [Phone setup →](docs/guide.md#on-your-phone)
+| 设置 | 填写说明 |
+| --- | --- |
+| 协议 | 按服务商接口选择 OpenAI 或 Anthropic |
+| API 基础 URL | OpenAI 地址应包含服务商要求的路径，例如 `/v1`，后端追加 `/chat/completions`；Anthropic 后端补齐 `/v1/messages`，已有 `/v1` 时不重复追加 |
+| API Key | 首次配置时填写；已有密钥时留空表示保持不变；修改 URL 必须重新填写密钥 |
+| 模型 ID | 填入该服务实际支持、且当前账户可用的文本模型标识 |
 
-**Which agents does the chat view support?**
+保存立即生效并清理翻译缓存，重启后保留。设置以 AES-256-GCM 加密保存于后端状态目录的 `translation.enc`，本机解密密钥为 `translation.key`；文件权限为 `0600`，目录为 `0700`。读取设置只返回是否配置密钥，不回传已保存的 API Key。
 
-Claude Code, Codex, omp, omo, gjc and pi are read from their own session files. Any other program in a herdr pane gets the live terminal and its status. [Supported agents →](docs/guide.md#supported-agents)
+已有 `.env` 可继续作为回退，变量为 `HERDR_TRANSLATION_PROTOCOL`、`HERDR_TRANSLATION_BASE_URL`、`HERDR_TRANSLATION_API_KEY`、`HERDR_TRANSLATION_MODEL`；协议值为 `openai` 或 `anthropic`，默认 `openai`。已保存的设置优先于环境变量，保存设置不会改写 `.env`。凭据只供后端使用，不使用 `VITE_` 前缀，也不要提交到 Git。
 
-**Does it replace herdr's own TUI?**
+开启聊天翻译或主动翻译文档时，相应文本会发送到配置的翻译服务，可能产生费用。Agent 自身的模型调用与语音转写有各自独立的数据流和计费。
 
-No. Both attach to the same terminals at the same time, so the pane stays live at your desk, in the browser and on the phone. Nothing is stopped or handed over. [TUI and browser →](docs/guide.md#faq)
+## 通过 SSH 访问远端
 
-**Do I need Tailscale?**
-
-No. Tailscale, an SSH tunnel, a VPN or your own HTTPS proxy can provide a route to the PC. Installation and push alerts need a secure context such as HTTPS or localhost; basic browsing also works over plain HTTP on a LAN. [The options →](docs/guide.md#faq)
-
-**Does my code or conversation leave my machine?**
-
-Session files stay on the PC running each agent, and their contents are served to browsers you connect. The app has no hosted relay or account service of its own. Optional voice input sends audio (and text when polishing) to the configured provider; enabled usage meters contact provider APIs. Updates, remote-PC setup and push alerts can also use external services. The agents’ own model connections depend on their configuration. [Data flow and access →](docs/guide.md#faq)
-
-**Does it work on Windows?**
-
-Yes, on Windows x64 without WSL. Until herdr can attach a terminal there, the terminal is a [screen mirror](docs/remote-pcs.md#windows-pcs) with typing and a fixed grid.
-
-**How is it different from collie, roamgate or herdr-remote?**
-
-These are other phone or browser clients for herdr. This one reads the agent's own transcript, so a pane is a chat with the work folded per turn rather than terminal output, and other PCs join over SSH from the sidebar. It brings no tunnel and drives only herdr: if you want tmux or zellij, diffs, Telegram or a tunnel out of the box, one of the others is the better fit. [The full comparison →](docs/guide.md#faq)
-
-**How is it different from Happy, Paseo or CloudCLI UI?**
-
-Those projects provide their own ways to start or manage agent sessions. This app works with the herdr panes you already run, keeping the same terminals available in the TUI and browser. If you do not use herdr, compare those projects’ deployment options and agent support. [The full comparison →](docs/guide.md#faq)
-
-## docs
-
-Start with the [user guide](docs/guide.md): [quick start](docs/guide.md#quick-start) · [supported agents](docs/guide.md#supported-agents) · [features](docs/guide.md#features) · [phone](docs/guide.md#on-your-phone) · [remote PCs](docs/remote-pcs.md) · [access and safety](docs/guide.md#access-and-safety) · [configuration](docs/guide.md#configuration) · [keyboard shortcuts](docs/guide.md#keyboard-shortcuts) · [FAQ](docs/guide.md#faq).
-
-For a closer look: [how it works](docs/guide.md#how-it-works) · [chat transcripts](docs/chat-mode-audit.md) · [terminal flow control](docs/terminal-flow-control.md) · [app updates](docs/app-updates.md) · [changelog](CHANGELOG.md).
-
-## thanks
-
-Built on [herdr](https://github.com/herdrdev/herdr), with inspiration from [chatmux](https://github.com/devswha/chatmux), and powered by [xterm.js](https://xtermjs.org), [React](https://react.dev), [Bun](https://bun.sh) and [Lucide](https://lucide.dev).
-
-Thanks to everyone who has contributed, including [@Yoonwoo-Ha](https://github.com/Yoonwoo-Ha).
-
-## agent instructions
-
-Helping someone install the app? Follow [INSTALL.md](INSTALL.md). For repository changes, follow [CONTRIBUTING.md](CONTRIBUTING.md), the [review rules](.github/REVIEW.md) and [AGENTS.md](AGENTS.md).
-
-## development
+远端 Web 服务仍监听 `127.0.0.1:17317`。在本机终端建立隧道：
 
 ```bash
-git clone https://github.com/devswha/herdr-web-ui.git
-cd herdr-web-ui
-bun install
-
-bun run server      # API + WebSocket on :7317
-bun run dev         # Vite on :5173; run in a second terminal
+ssh -N -o ExitOnForwardFailure=yes -L 127.0.0.1:17319:127.0.0.1:17317 user@server.example.com
 ```
+
+将 `user@server.example.com` 替换为自己的远端账户与地址，保持此命令运行，再在本机浏览器打开 [隧道入口](http://127.0.0.1:17319)。此方式无需 Tailscale；SSH 客户端负责连接和转发，浏览器只访问本机端口，不直接读取 SSH 配置。
+
+## 验证范围与开发检查
+
+[翻译说明](docs/translation.md)记录了双向文本翻译、失败保留草稿、切换窗格取消、原文切换等浏览器验收，以及设置保存和协议接口检查。**Anthropic 协议的隔离 HTTP 验证已通过，但尚未完成真实 Anthropic 账户验收；真人麦克风录音也未验收。** 这些记录不代表所有服务商、模型或语音环境均已兼容。
+
+常用开发检查：
 
 ```bash
 bun run typecheck
-bun run test:unit   # no herdr needed
-bun test           # isolated herdr test session
-bun run test:ui    # browser regression checks
+bun run build
+bun run test:unit
+UI_EVIDENCE_DIR=evidence/ui bun run test:ui
+UI_EVIDENCE_DIR=evidence/file-viewer bun scripts/file-viewer-regression.ts
 ```
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) to send a change, [development](docs/development.md) for tests, media and releases, and [DESIGN.md](DESIGN.md) for UI conventions. Report security problems privately: [SECURITY.md](SECURITY.md).
+浏览器检查需要可用的 Chrome，可通过 `CHROME_PATH` 指定可执行文件；文件阅读器回归不包含在 `test:ui` 中，因此单独列出。浏览器脚本使用构建产物，`UI_EVIDENCE_DIR` 指定截图证据目录。测试只能使用隔离测试会话及其自行创建的窗格，不要设置 `HERDR_TEST_LIVE=1` 指向用户会话。复杂交互优先用端到端验证，并保留复现步骤、结果和截图；本版翻译与文档阅读的重验步骤见对应文档。
 
-## license
+## 相关文档
 
-[MIT](LICENSE). Copyright © 2026 devswha.
+- [翻译行为、配置与验收](docs/translation.md)
+- [文件阅读器与文档翻译](docs/file-viewer.md)
+- [使用指南](docs/guide.md)与[远端机器说明](docs/remote-pcs.md)
+- [开发与测试说明](docs/development.md)
+- [贡献约定](CONTRIBUTING.md)、[审查规则](.github/REVIEW.md)与[项目约束](AGENTS.md)
+- [界面设计约定](DESIGN.md)与[变更记录](CHANGELOG.md)
+
+部分通用文档沿用上游说明；其中的上游安装、发布和更新入口不用于安装本定制版，运行方式以本页为准。
+
+## 许可与致谢
+
+本项目遵循 [MIT 许可证](LICENSE)，保留原作者归属：版权所有 © 2026 devswha。
+
+感谢 [devswha/herdr-web-ui](https://github.com/devswha/herdr-web-ui) 的原作者和贡献者，以及提供底层引擎的 [herdrdev/herdr](https://github.com/herdrdev/herdr)。界面与服务使用 React、xterm.js、Bun 和 Lucide 等项目。

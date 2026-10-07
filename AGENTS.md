@@ -11,6 +11,8 @@ Browser UI for the herdr terminal multiplexer: a React 18 + xterm.js client (`sr
 
 ## Bridge invariants
 
+- Local translation extension: see `docs/translation.md`. Keep credentials backend-only in encrypted settings or the ignored `.env` fallback; translations never overwrite native transcripts. Composer translation must preserve existing submit/queue semantics and cancel on pane/connection changes. Do not translate terminal input or approval commands.
+
 The app is only a bridge: herdr owns every pty, scrollback and agent state.
 
 - NEVER load node-pty inside Bun; it panics the runtime (oven-sh/bun#18546). All PTY work goes through the Node sidecar `server/pty/pty-host.mjs`, and the only process it runs is `herdr terminal attach <terminal_id>`.
@@ -75,3 +77,15 @@ The app is only a bridge: herdr owns every pty, scrollback and agent state.
   - Link the PR, not the issue. An entry built from several PRs links each one.
   - Credit every PR author except @devswha and bots, also when the maintainer pushed fixes to the PR or carried it into a new one; then link both, with `by @login` after the PR that person wrote.
   - A PR has no number until it opens, so add the link in a commit after `gh pr create`. At release, fill in missing links and credits from `git log --format=%s <last tag>..main` and `gh pr view N --json author`.
+
+Muse deployment and SSH access: see [docs/muse-deployment.md](docs/muse-deployment.md). Keep the Web listener on loopback and preserve the existing `muse-herdr` session.
+
+File preview behavior: see [docs/file-viewer.md](docs/file-viewer.md); Markdown defaults to rendered reading with an optional source toggle.
+
+Translation settings use the encrypted server-side config described in docs/translation.md; GET must never reveal API keys. Preserve env fallback and both provider protocols.
+
+## 本定制仓库发布
+
+本仓库为 `wherexml/claudecode-herdr`，上游为 `devswha/herdr-web-ui`。保留上游 MIT 归属与历史；README 说明文字使用简体中文。上游网站和二进制发布工作流仅在上游执行，本仓库保留 CI 验证。公开提交不得包含本地凭据、验收对话或私人部署地址。
+
+公开发布说明见 [docs/publishing.zh.md](docs/publishing.zh.md)。

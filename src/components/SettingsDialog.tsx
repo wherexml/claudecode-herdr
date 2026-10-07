@@ -1,3 +1,4 @@
+import { TranslationSettings } from "./TranslationSettings.tsx";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronDown, ChevronUp, Eye, EyeOff, Minus, Monitor, Plus, Star, X } from "lucide-react";
 
@@ -327,6 +328,8 @@ export function SettingsDialog({ open, onClose, actions, updates, auth, herdrVer
               <Toggle label={t("Suggestion chip")} checked={settings.showSuggestionChip} onChange={(showSuggestionChip) => update({ showSuggestionChip })} />
             </div>
           </section>
+
+          <TranslationSettings />
 
           <section className="settings-section voice-settings">
             <h3>{t("Voice input")}</h3>

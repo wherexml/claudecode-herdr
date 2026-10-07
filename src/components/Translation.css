@@ -1,0 +1,21 @@
+.translation-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 12px; padding: 8px 0 0; color: var(--text-dim); font-size: var(--fs-xs); }
+.translation-toggle { display: inline-flex; align-items: center; gap: 6px; padding: 4px 0; border: 0; background: transparent; color: var(--text-dim); cursor: pointer; font: inherit; }
+.translation-toggle svg { width: 14px; height: 14px; }
+.translation-toggle[aria-checked="true"] { color: var(--accent); }
+.translation-toggle:disabled { opacity: .5; cursor: default; }
+.translation-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+.translation-switch { width: 24px; height: 14px; border-radius: 8px; background: var(--border-strong); padding: 2px; }
+.translation-switch::after { content: ""; display: block; width: 10px; height: 10px; border-radius: 50%; background: var(--text-dim); }
+.translation-toggle[aria-checked="true"] .translation-switch { background: var(--accent-tint); }
+.translation-toggle[aria-checked="true"] .translation-switch::after { background: var(--accent); transform: translateX(10px); }
+.translation-answer-status, .translation-original { color: var(--text-dim); font-size: var(--fs-xs); margin-top: 8px; }
+.translation-original summary { cursor: pointer; padding: 4px 0; }
+.translation-original[open] { border-top: 1px solid var(--border); }
+.translation-mode-control { position: relative; display: inline-flex; }
+.translation-tooltip { position: absolute; bottom: calc(100% + 6px); left: 0; z-index: 10; padding: 6px 9px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-elevated); color: var(--text); box-shadow: var(--shadow-pop); white-space: nowrap; visibility: hidden; opacity: 0; pointer-events: none; }
+.translation-mode-control:hover .translation-tooltip, .translation-mode-control:focus-within .translation-tooltip { visibility: visible; opacity: 1; }
+.pacific-clock { display: inline-flex; align-items: center; gap: 5px; color: var(--text-dim); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.pacific-clock svg { width: 16px; height: 16px; flex-shrink: 0; }
+.pacific-clock[data-mood="green"] svg { color: var(--status-done); }
+.pacific-clock[data-mood="yellow"] svg { color: var(--accent); }
+.pacific-clock[data-mood="red"] svg { color: var(--status-blocked); }

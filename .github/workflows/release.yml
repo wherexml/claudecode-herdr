@@ -14,6 +14,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   preflight:
+    if: github.repository == 'devswha/herdr-web-ui'
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:

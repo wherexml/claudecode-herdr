@@ -376,6 +376,8 @@ async function route(url: URL, method: string, init: RequestInit | undefined, in
   }
   // no key in the demo: the app falls back to the browser's own speech recognition
   if (path === "/api/voice") return json({ configured: false, source: null, ...VOICE_DEFAULTS } satisfies VoiceStatus, 200, { "cache-control": "no-store" });
+  if (path === "/api/translation/settings") return method === "GET" ? json({ configured: false, has_key: false, protocol: "openai", base_url: "", model: "" }) : error("translation_not_configured", "Translation is unavailable in the demo", 503);
+  if (path === "/api/translation") return method === "GET" ? json({ configured: false }) : error("translation_not_configured", "Translation is unavailable in the demo", 503);
   if (path === "/api/voice/config") return error("demo", "the demo saves no OpenAI key", 409);
   if (path === "/api/voice/transcribe") return error("voice_not_configured", "transcription is unavailable in the demo", 409);
   if (path.startsWith("/api/fs/")) return error("not_found", "the demo has no files to open", 404);

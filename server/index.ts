@@ -68,6 +68,7 @@ import { connectUpdater, handleUpdateRequest, type UpdateService } from "./updat
 import { handleHerdrUpdateRequest, HerdrUpdater } from "./herdr-update.ts";
 import { handleUsageRequest, UsageService } from "./usage.ts";
 import { handleVoiceRequest, VoiceService } from "./voice.ts";
+import { handleTranslationRequest, TranslationService } from "./translation.ts";
 
 import { BRIDGE_PROTOCOL } from "../shared/machines.ts";
 import { bridgeIdentity, registerBridge } from "./bridge.ts";
@@ -322,6 +323,7 @@ export function createServer(
     usage?: UsageService;
     /** voice input's key, provider and models; tests pass one with their own env and fetch */
     voice?: VoiceService;
+    translation?: TranslationService;
     machines?: boolean;
     registerBridge?: boolean;
     /** SUBMIT_DEADLINE_MS; tests shorten it */
@@ -375,6 +377,7 @@ export function createServer(
   const devices = new DeviceStore(options.stateDir ?? defaultStateDir());
   const usage = options.usage ?? new UsageService();
   const voice = options.voice ?? new VoiceService({ stateDir: options.stateDir ?? defaultStateDir(), env: process.env, fetch });
+  const translation = options.translation ?? new TranslationService({ stateDir: options.stateDir ?? defaultStateDir() });
   /** a login named here is taken as it is: a tagged node has none of its own to read (HERDR_WEB_TAILSCALE_OWNER) */
   const namedOwner = options.tailscaleOwner !== undefined ? options.tailscaleOwner : process.env["HERDR_WEB_TAILSCALE_OWNER"]?.trim() || undefined;
   const identityOf = namedOwner !== undefined ? () => ({ owner: namedOwner, tagged: false }) : tailscaleIdentity;
@@ -1103,6 +1106,8 @@ export function createServer(
       if (pathname === "/api/herdr/update") return handleHerdrUpdateRequest(request, options.herdrUpdate);
 
       if (pathname === "/api/usage") return handleUsageRequest(request, url, usage);
+      if (pathname === "/api/translation/settings") return handleTranslationRequest(request, translation, true);
+      if (pathname === "/api/translation") { bunServer.timeout(request, 100); return handleTranslationRequest(request, translation); }
       // a long clip can keep the provider silent past Bun's 10 s idle limit before the first line
       if (pathname === "/api/voice" || pathname.startsWith("/api/voice/")) { bunServer.timeout(request, 120); return handleVoiceRequest(request, pathname, voice); }
 

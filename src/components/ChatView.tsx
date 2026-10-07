@@ -9,6 +9,7 @@ import "./ChatView.css";
 
 import { AgentMark } from "./AgentMark.tsx";
 import { Markdown } from "./Markdown.tsx";
+import { TranslatedAnswer } from "./Translation.tsx";
 import { PromptCard } from "./PromptCard.tsx";
 import { RenderBoundary } from "./RenderBoundary.tsx";
 import { turnRevision } from "../lib/turnRevision.ts";
@@ -456,6 +457,8 @@ function noticeLabel(t: ReturnType<typeof useT>, notice: Extract<ConversationPar
 // a turn that did not change keeps its object across polls: skip re-rendering it
 const Turn = memo(function Turn({ paneId, turn, live, waiting, showThinking }: TurnProps) {
   const t = useT();
+  const machine = useMachineId();
+  const history = useContext(ChatHistoryContext);
   const time = formatTime(turn.ts);
   const compact = turn.parts.find((part): part is Extract<ConversationPart, { kind: "compact" }> => part.kind === "compact");
   if (compact !== undefined) {
@@ -501,7 +504,7 @@ const Turn = memo(function Turn({ paneId, turn, live, waiting, showThinking }: T
     <SkillActivityList parts={turn.parts} />
     {goal !== null && <GoalActivity goal={goal} />}
     {work.length > 0 && <WorkBlockView paneId={paneId} parts={work} duration={formatWorkDuration(turn.ts, turn.end_ts ?? null)} live={live} waiting={waiting} defaultOpen={workStartsOpen(live, turn.parts)} showThinking={showThinking} />}
-    {answer.map((part, index) => <Markdown key={index}>{part.text}</Markdown>)}
+    {answerText.length > 0 && <TranslatedAnswer text={answerText} ready={!live && !waiting} session={`${machine}:${paneId}:${history}`} />}
     {answerText.length > 0 && <div className="chat-turn-meta chat-agent-meta">
       {/* a mouse reads one copy glyph and the words "Plain text"; touch reads the two formats */}
       <CopyButton className="chat-meta-btn" text={answerText} label={t("Copy as markdown")}><span className="chat-meta-fmt">MD</span></CopyButton>

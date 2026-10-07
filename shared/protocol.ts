@@ -673,3 +673,8 @@ export type ServerMessage =
 /** herdr's default socket, under XDG_CONFIG_HOME when set, as herdr itself resolves it. */
 export const HERDR_SOCKET_PATH = `${process.env["XDG_CONFIG_HOME"] || `${process.env["HOME"] ?? ""}/.config`}/herdr/herdr.sock`;
 export const DEFAULT_PORT = 7317;
+/** Optional server-side translation; never carries provider credentials to the browser. */
+export interface TranslationRequest { text: string; target: "en" | "zh-CN"; session: string; }
+export interface TranslationResponse { text: string; target: "en" | "zh-CN"; }
+export interface TranslationSettings { protocol: "openai" | "anthropic"; base_url: string; model: string; has_key: boolean; configured: boolean; }
+export interface TranslationSettingsUpdate { protocol: "openai" | "anthropic"; base_url: string; model: string; api_key?: string; }

@@ -961,3 +961,15 @@ One set for both themes: the card is island black wherever it shows.
 | Drawer has no focus trap | `.sidebar.is-open` | Closed state leaves the tab order, but open-state trapping is not implemented | Add a shared focus utility |
 | Modal focus is initialized, not fully trapped | Dialog components | Escape/scrim/close work; tab containment is not shared | Add the same focus utility |
 | Terminal colors exist in CSS and JavaScript | `styles.css`, `settings.ts` | xterm consumes a JS theme | Keep `terminalTheme()` verbatim with `--term-*` |
+
+## Local translation extension
+
+The composer footer has a compact Languages switch with a hover/focus direction tooltip and a Pacific-time face indicator. Enabled uses the existing accent tokens; disabled uses dim text. Settled answers show translated prose with a small status and collapsible original. Pending/failure states retain the original text. No terminal or approval controls are translated. See [translation behavior](docs/translation.md).
+
+The translation footer shares the composer surface width and horizontal centering; its first icon aligns with the surface left edge without an extra horizontal inset.
+
+Markdown file previews use the chat Markdown typography inside the scrollable file body, with a source/render toggle in the existing header. See [file viewer](docs/file-viewer.md).
+
+The file header includes an accent-colored Languages icon for on-demand Chinese translation; a tinted background indicates the translated view. It toggles back to the original without changing file contents.
+
+Translation settings appear above Voice input and reuse its grouped card and toggle styling. Existing keys appear as configured, never as plaintext.

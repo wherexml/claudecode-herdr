@@ -1,7 +1,9 @@
-import { useEffect, useState } from "react";
-import { Download, ExternalLink, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Code, Download, ExternalLink, Eye, Languages, X } from "lucide-react";
 
 import "./FileViewer.css";
+import { Markdown } from "./Markdown.tsx";
+import { OpenFileContext } from "../lib/filePaths.ts";
 import { DirectoryBrowser } from "./DirectoryBrowser.tsx";
 
 import type { FileInfo } from "../../shared/protocol.ts";
@@ -9,6 +11,7 @@ import { ApiError } from "../lib/api.ts";
 import { formatBytes } from "../lib/bridgeProgress.ts";
 import { LOCAL_MACHINE } from "../../shared/machines.ts";
 import { useMachineApi, useMachineId } from "../lib/machineContext.tsx";
+import { translateDocument } from "../lib/translation.ts";
 import { useT } from "../lib/i18n.ts";
 
 /** Bigger images are offered as a download: a phone decodes an image whole. */
@@ -34,7 +37,8 @@ export function FileViewer({ path: asked, paneId, onClose, onOpen }: FileViewerP
   const { fetchFileInfo, fileUrl, fetchDirectories } = useMachineApi();
   // a remote PC's bridge reads a relative folder from the pane's folder only from its next bundle
   // on; until then it would list the bridge's own folder, so only an absolute or ~/ one is listed there
-  const remote = useMachineId() !== LOCAL_MACHINE;
+  const machineId = useMachineId();
+  const remote = machineId !== LOCAL_MACHINE;
   const [directory, setDirectory] = useState<string | null>(null);
   // the path as given, until a choice among files of that name replaces it
   const [path, setPath] = useState(asked);
@@ -42,12 +46,42 @@ export function FileViewer({ path: asked, paneId, onClose, onOpen }: FileViewerP
   const [candidates, setCandidates] = useState<string[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [text, setText] = useState<string | null>(null);
+  const [showSource, setShowSource] = useState(false);
+  const [translated, setTranslated] = useState<string | null>(null);
+  const [showTranslation, setShowTranslation] = useState(false);
+  const [translating, setTranslating] = useState(false);
+  const [translationError, setTranslationError] = useState(false);
+  const translationRequest = useRef<AbortController | null>(null);
+  useEffect(() => {
+    translationRequest.current?.abort();
+    setTranslated(null); setShowTranslation(false); setTranslating(false); setTranslationError(false);
+    return () => { translationRequest.current?.abort(); };
+  }, [path, asked, paneId, machineId]);
+
+  async function toggleTranslation() {
+    if (translationRequest.current && translating) return;
+    if (translated !== null) { setShowTranslation((value) => !value); return; }
+    if (!text?.trim()) return;
+    const controller = new AbortController();
+    translationRequest.current = controller;
+    setTranslating(true); setTranslationError(false);
+    try {
+      const result = await translateDocument(text, `file:${machineId}:${paneId ?? ""}`, controller.signal);
+      if (!controller.signal.aborted) { setTranslated(result); setShowTranslation(true); }
+    } catch {
+      if (!controller.signal.aborted) setTranslationError(true);
+    } finally {
+      if (!controller.signal.aborted) setTranslating(false);
+    }
+  }
+  const displayText = showTranslation && translated !== null ? translated : text;
+  const isMarkdown = info?.kind === "text" && /\.(?:md|markdown|mdown|mkd)$/i.test(info.name);
 
   useEffect(() => setPath(asked), [asked]);
 
   useEffect(() => {
     let cancelled = false;
-    setInfo(null); setCandidates(null); setError(null); setText(null); setDirectory(null);
+    setShowSource(false); setInfo(null); setCandidates(null); setError(null); setText(null); setDirectory(null);
     fetchFileInfo(path, paneId).then(async (next) => {
       if (cancelled) return;
       if ("candidates" in next) { setCandidates(next.candidates); return; }
@@ -104,7 +138,12 @@ export function FileViewer({ path: asked, paneId, onClose, onOpen }: FileViewerP
         return <iframe className="file-viewer-pdf" src={url} title={info.name} />;
       case "text":
         return text === null ? <p className="file-viewer-note">{t("Opening…")}</p> : <>
-          <pre className="file-viewer-text">{text}</pre>
+          {isMarkdown && !showSource ? <OpenFileContext.Provider value={(linked) => {
+            const target = /^(?:\/|~\/|[A-Za-z]:[\\/])/.test(linked)
+              ? linked : `${info.path.slice(0, info.path.lastIndexOf("/") + 1)}${linked}`;
+            (onOpen ?? setPath)(target);
+          }}><Markdown className="file-viewer-markdown">{displayText!}</Markdown></OpenFileContext.Provider>
+            : <pre className="file-viewer-text">{displayText}</pre>}
           {info.size > TEXT_PREVIEW_BYTES && <p className="file-viewer-note">{t("Showing the first {shown} of {total}.", { shown: formatBytes(TEXT_PREVIEW_BYTES), total: formatBytes(info.size) })}</p>}
         </>;
       default:
@@ -123,11 +162,26 @@ export function FileViewer({ path: asked, paneId, onClose, onOpen }: FileViewerP
               <span className="file-viewer-path"><span dir="ltr">{info?.path ?? path}</span></span>
             </p>
           </div>
+          {info?.kind === "text" && <button type="button" className="icon-button file-viewer-translate"
+            disabled={translating || !text?.trim()} aria-pressed={showTranslation} aria-busy={translating}
+            aria-label={translating ? t("Translating…") : showTranslation ? t("Show original document") : t("Translate document to Chinese")}
+            title={translating ? t("Translating…") : showTranslation ? t("Show original document") : t("Translate document to Chinese")}
+            onClick={() => { void toggleTranslation(); }}><Languages aria-hidden="true" /></button>}
+          {isMarkdown && <button type="button" className="icon-button" aria-pressed={showSource}
+            aria-label={showSource ? t("Show rendered Markdown") : t("Show Markdown source")}
+            title={showSource ? t("Show rendered Markdown") : t("Show Markdown source")}
+            onClick={() => setShowSource((value) => !value)}>
+            {showSource ? <Eye aria-hidden="true" /> : <Code aria-hidden="true" />}
+          </button>}
           <a className="icon-button" href={url} target="_blank" rel="noopener" aria-label={t("Open in a new tab")} title={t("Open in a new tab")}><ExternalLink aria-hidden="true" /></a>
           <a className="icon-button" href={fileUrl(info?.path ?? path, paneId, true)} download={info?.name ?? true} aria-label={t("Download")} title={t("Download")}><Download aria-hidden="true" /></a>
           <button type="button" className="icon-button" aria-label={t("Close file")} onClick={onClose}><X aria-hidden="true" /></button>
         </header>
-        <div className="file-viewer-body">{body}</div>
+        <div className="file-viewer-body">
+          {translating && <p className="file-viewer-note" role="status">{t("Translating…")}</p>}
+          {translationError && <p className="file-viewer-note" role="status">{t("Translation failed; original shown.")}</p>}
+          {body}
+        </div>
       </section>
     </div>
   );

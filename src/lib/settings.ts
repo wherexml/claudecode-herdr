@@ -91,6 +91,7 @@ export interface Settings {
   usageHidden: string[];
   /** the microphone button in the composer and the terminal input line; off until chosen, as it sends audio out */
   voiceInput: boolean;
+  translationMode: boolean;
   voicePolishChat: boolean;
   /** off by default: a terminal line is usually a command, kept as spoken */
   voicePolishTerminal: boolean;
@@ -129,6 +130,7 @@ export const DEFAULT_SETTINGS: Settings = {
   usageOrder: [],
   usageHidden: [],
   voiceInput: false,
+  translationMode: false,
   voicePolishChat: true,
   voicePolishTerminal: false,
 };
@@ -262,6 +264,7 @@ export function sanitizeSettings(raw: unknown): Settings {
     usageOrder: usageKeys(record["usageOrder"]),
     usageHidden: usageKeys(record["usageHidden"]),
     voiceInput: typeof record["voiceInput"] === "boolean" ? record["voiceInput"] : DEFAULT_SETTINGS.voiceInput,
+    translationMode: record["translationMode"] === true,
     voicePolishChat: typeof record["voicePolishChat"] === "boolean" ? record["voicePolishChat"] : DEFAULT_SETTINGS.voicePolishChat,
     voicePolishTerminal: typeof record["voicePolishTerminal"] === "boolean" ? record["voicePolishTerminal"] : DEFAULT_SETTINGS.voicePolishTerminal,
   };

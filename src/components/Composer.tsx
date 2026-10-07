@@ -39,6 +39,7 @@ import { modelLabel } from "../lib/modelName.ts";
 import { useFacesArrived } from "../lib/fontFaces.ts";
 import { activeTrigger, applyCompletion, type ActiveTrigger } from "../lib/mentions.ts";
 import { quickReplyButtons, useSettings } from "../lib/settings.ts";
+import { TranslationToggle } from "./Translation.tsx";
 import { AgentMark } from "./AgentMark.tsx";
 import { BackgroundTasks } from "./BackgroundTasks.tsx";
 import { MicButton, VoiceRecordingPill, useDictation } from "./VoiceInput.tsx";
@@ -1029,6 +1030,8 @@ export function Composer({
         </div>
       </div>
       {note && <div className="composer-note" role="alert">{note}</div>}
+      <TranslationToggle />
+      {sending && settings.translationMode && <div className="composer-hint" role="status">{t("Translating and sending…")}</div>}
       {/* said while typing, before the send: after it the browser is already open and the reader is
           already in the state the words describe. Not a block — the text still goes, and pi runs the
           command in the terminal the way its own palette would */}

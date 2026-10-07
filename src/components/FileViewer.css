@@ -165,3 +165,15 @@
   text-align: left;
   overflow-wrap: anywhere;
 }
+
+.file-viewer-markdown {
+  flex: none;
+  min-width: 0;
+  padding: var(--space-3);
+  color: var(--text);
+  --chat-fs-body: var(--fs-sm);
+  font-family: var(--font-ui);
+}
+
+.file-viewer-translate { color: var(--accent); }
+.file-viewer-translate[aria-pressed="true"] { background: var(--accent-tint); }

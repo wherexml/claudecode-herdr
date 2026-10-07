@@ -119,7 +119,7 @@ export interface Dictation {
 export function useDictation(options: DictationOptions): Dictation {
   const t = useT();
   const { settings } = useSettings();
-  const shown = settings.voiceInput;
+  const shown = settings.voiceInput || (options.mode === "chat" && settings.translationMode);
   const [partial, setPartial] = useState("");
   const latest = useRef(options);
   latest.current = options;

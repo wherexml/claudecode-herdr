@@ -32,6 +32,7 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
   install:
+    if: github.repository == 'devswha/herdr-web-ui' || github.event_name != 'schedule'
     name: Real Windows install
     runs-on: windows-latest
     timeout-minutes: 30

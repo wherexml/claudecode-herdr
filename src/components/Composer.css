@@ -144,6 +144,7 @@
 
 .composer-quick,
 .composer-surface,
+.translation-controls,
 .composer-note {
   width: min(100%, var(--chat-w));
   margin-inline: auto;

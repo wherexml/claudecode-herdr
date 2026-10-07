@@ -33,6 +33,7 @@ import { loadFontStack, TERMINAL_FONT_STACK, terminalFontStack } from "../lib/fo
 import { useT } from "../lib/i18n.ts";
 import { isAppShortcut } from "../lib/shortcuts.ts";
 import { OpenFileContext } from "../lib/filePaths.ts";
+import { translateText } from "../lib/translation.ts";
 import { fileUriPath, terminalFileLinkProvider } from "../lib/terminalFileLinks.ts";
 import { adjustTerminalGlyphs } from "../lib/terminalGlyphs.ts";
 
@@ -1254,7 +1255,7 @@ export function PaneTerminal({
   // must not turn a one-letter message into a control key. Offline it sends nothing and
   // keeps its text (never-queue); a message the server could not deliver keeps it too,
   // with the reason. Bracketed-paste wrapping follows the pane program's mode.
-  const sendComposerText = useCallback((text: string): false | Promise<true | string> => {
+  const rawSendComposerText = useCallback((text: string): false | Promise<true | string> => {
     const term = termRef.current;
     const socket = socketRef.current;
     const pane = paneRef.current;
@@ -1282,6 +1283,37 @@ export function PaneTerminal({
       throw error;
     });
   }, [onChatSuggestion, machineId]);
+
+  // A translation owns one connection/selection/state. Even switching away and back cancels it.
+  const translationEpoch = useRef(0);
+  const translationRequest = useRef<AbortController | null>(null);
+  useLayoutEffect(() => {
+    translationEpoch.current++;
+    translationRequest.current?.abort();
+    return () => { translationEpoch.current++; translationRequest.current?.abort(); };
+  }, [paneId, machineId, connected, chatView, settings.translationMode, chatPrompt?.value.id, agentStatus]);
+
+  const sendComposerText = useCallback((text: string): false | Promise<true | string> => {
+    if (!settings.translationMode || text.trimStart().startsWith("/")) return rawSendComposerText(text);
+    const pane = paneRef.current;
+    const socket = socketRef.current;
+    if (!pane || !socket?.connected || translationRequest.current || secretRef.current || heldRef.current) return false;
+    const epoch = translationEpoch.current;
+    const controller = new AbortController();
+    translationRequest.current = controller;
+    const offDisconnect = socket.onDisconnect(() => controller.abort());
+    return (async (): Promise<true | string> => {
+      let translated: string;
+      try {
+        translated = await translateText(text, "en", `${machineId}:${pane}`, controller.signal);
+      } catch {
+        return controller.signal.aborted ? t("Translation cancelled. Your draft is kept.") : t("Translation failed. Your draft is kept; retry or turn off translation.");
+      } finally { offDisconnect(); if (translationRequest.current === controller) translationRequest.current = null; }
+      if (controller.signal.aborted || epoch !== translationEpoch.current || paneRef.current !== pane || socketRef.current !== socket || !socket.connected) return t("Translation cancelled. Your draft is kept.");
+      if (translated.length > MAX_COMPOSER_CHARS) return t("Translation is too long. Shorten your message and retry.");
+      return await rawSendComposerText(translated) || t("Not sent. Reconnect and try again.");
+    })();
+  }, [settings.translationMode, rawSendComposerText, machineId, t]);
 
   // the terminal's input line: the text typed like the keyboard would, into an agent's open
   // menu too, then Enter after the server's gap; several lines go as one paste

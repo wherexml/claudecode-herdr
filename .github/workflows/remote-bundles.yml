@@ -20,6 +20,7 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
   bundle:
+    if: github.repository == 'devswha/herdr-web-ui'
     timeout-minutes: 20
     strategy:
       fail-fast: false
