@@ -14,6 +14,7 @@ try {
   assert.ok(build.success, String(build.logs));
   server = Bun.serve({ port: 0, hostname: "127.0.0.1", fetch(request) {
     const path = new URL(request.url).pathname;
+    if (path === "/api/translation") return Response.json({ configured: false });
     if (path === "/ws") return new Response(null, { status: 404 });
     if (path.endsWith("/pane/commands")) return Response.json({ commands: [] });
     return path === "/" ? new Response('<html><head><link rel="stylesheet" href="/chat-history-fixture.css"></head><body><div id="root"></div><script type="module" src="/chat-history-fixture.js"></script></body></html>', { headers: { "Content-Type": "text/html" } }) : new Response(Bun.file(join(root, path.slice(1))));

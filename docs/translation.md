@@ -47,3 +47,5 @@
 OpenAI 基础 URL 应包含服务商要求的路径（例如 `/v1`）；Anthropic 自动补充 `/v1/messages`。两种协议都拒绝截断输出并保留代码路径保护。协议参考：https://platform.claude.com/docs/en/api/messages/create 。
 
 验收覆盖：配置自动带入、留空保留密钥、保存/刷新持久化、协议切换、无权限/跨源拒绝、URL 改变要求新密钥、OpenAI 和 Anthropic HTTP 请求与返回、磁盘密文不包含 API Key。真实 Anthropic 服务需用户提供对应账户；本次用隔离 HTTP fixture 验证协议。
+
+聊天历史浏览器夹具为 `/api/translation` 提供未配置响应，使真实 Composer 在隔离环境中不会将新 API 路径误当静态文件读取。
