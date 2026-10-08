@@ -1,6 +1,6 @@
 # 聊天页会话状态
 
-输入框下方读取当前 Claude Code 会话的原生 statusLine 数据，显示模型、上下文已用百分比、会话估算费用、5 小时与周额度占用，以及本地时区的重置时间。更新时间始终可见，悬停查看完整日期；额度没有返回就不显示，不推算、不跨会话复用。费用是 Claude Code 的客户端估算，不代表实际账单。
+输入框下方读取当前 Claude Code 会话的原生 statusLine 数据，显示会话估算费用，以及 5h、7d 额度进度条。模型、上下文和更新时间不展示。重置时间固定为 America/Los_Angeles，自动处理夏令时：5h 显示 `reset at 20:00`，7d 显示 `reset at Wed`；悬停查看占用百分比及完整美西日期；额度没有返回就不显示，不推算、不跨会话复用。费用是 Claude Code 的客户端估算，不代表实际账单。
 
 ## 数据链路
 
@@ -16,10 +16,10 @@
 
 保留已有 statusLine 其他选项。运行中的 Claude Code 重新加载设置后生成快照；没有快照时网页沿用原来的模型显示。自定义配置目录通过原生 `transcript_path` 绑定。需要停用时恢复原命令即可。
 
-快照变更加入 conversation ETag，因此原生对话文件没有新增消息时，网页仍可在现有轮询中刷新状态。此功能不增加 Herdr 状态订阅、不请求模型、不执行 `/status`。数据仅在 Claude Code 刷新 statusLine 时更新；结束的会话保留最后一次记录，通过更新时间辨别。更早历史分页不携带实时指标。
+快照变更加入 conversation ETag，因此原生对话文件没有新增消息时，网页仍可在现有轮询中刷新状态。此功能不增加 Herdr 状态订阅、不请求模型、不执行 `/status`。数据仅在 Claude Code 刷新 statusLine 时更新；结束的会话保留最后一次记录，时间戳仍保留在接口中，界面不展示。更早历史分页不携带实时指标。
 
 ## 验收
 
-运行 `bun run build`，然后 `HERDR_TEST_SESSION=herdr-web-ui-test-status bun scripts/statusline-fixture.ts`。fixture 使用独立 Herdr 会话和临时 Claude 存储，不调用真实模型。打开输出 URL，切到聊天视图，检查电脑和窄屏：模型、42% 上下文、$3.46、61% 五小时和18%周额度。横向滚动仅发生在状态栏，页面不溢出。
+运行 `bun run build`，然后 `HERDR_TEST_SESSION=herdr-web-ui-test-status bun scripts/statusline-fixture.ts`。fixture 使用独立 Herdr 会话和临时 Claude 存储，不调用真实模型。打开输出 URL，切到聊天视图，检查电脑和窄屏：仅显示 $3.46、61% 五小时和18%周额度进度条，不出现模型、上下文和更新时间；重置标签为美西时区的时间与星期。横向滚动仅发生在状态栏，页面不溢出。
 
 脚本验证原命令输出保留、快照权限、字段白名单、缺失与非法值隐藏、会话错配拒绝、ETag 随快照改变。接口证据写入忽略的 `evidence/statusline/api.json`，浏览器截图也保存于该目录。结束时停止 fixture 并关闭独立测试会话。

@@ -93,3 +93,5 @@ Translation settings use the encrypted server-side config described in docs/tran
 CI 的 Herdr socket 使用短临时路径，不能放回包含仓库名两次的检出目录；保持配置目录与失败日志路径一致。
 
 Claude 原生状态同步见 [docs/statusline.md](docs/statusline.md)。只读取已绑定会话的指标快照，保留原 statusLine 输出，不采集完整输入，不将缺失额度推算为零。
+
+状态栏只展示费用与 5h/7d 进度条；重置标签固定美西时区（自动夏令时），模型、上下文与更新时间不展示。

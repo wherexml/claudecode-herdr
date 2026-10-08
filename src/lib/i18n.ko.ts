@@ -7,12 +7,9 @@
  */
 export const KO: Record<string, string> = {
   "Session status": "세션 상태",
-  "Context used": "컨텍스트 사용률",
   "Estimated session cost": "세션 예상 비용",
-  "Resets at": "초기화 시간",
   "5-hour usage": "5시간 사용률",
   "Weekly usage": "주간 사용률",
-  "Updated at": "갱신 시간",
 
   "Translation settings": "번역 설정",
   "Translation service": "번역 서비스",

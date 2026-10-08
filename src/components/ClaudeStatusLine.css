@@ -11,5 +11,23 @@
   padding-block: var(--space-1);
   font-variant-numeric: tabular-nums;
 }
-.claude-statusline-updated { margin-left: auto; }
+.claude-statusline-window {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: 0 0 auto;
+}
+.claude-statusline-meter {
+  width: 56px;
+  height: 4px;
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+  background: var(--border-strong);
+}
+.claude-statusline-meter > span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  border-radius: inherit;
+}
 .prompt-dock:not(:empty) ~ .composer .claude-statusline { display: none; }

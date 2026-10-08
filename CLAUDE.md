@@ -15,3 +15,5 @@ Translation settings use the encrypted server-side config described in docs/tran
 CI socket 路径长度约束见 AGENTS.md 和 docs/publishing.zh.md。
 
 Claude 原生状态同步见 [docs/statusline.md](docs/statusline.md)。只读取已绑定会话的指标快照，保留原 statusLine 输出，不采集完整输入，不将缺失额度推算为零。
+
+状态栏只展示费用与 5h/7d 进度条；重置标签固定美西时区（自动夏令时），模型、上下文与更新时间不展示。
