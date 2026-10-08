@@ -306,7 +306,17 @@ export interface OmoTaskResult {
 }
 
 /** Latest model settings actually recorded by this agent. */
+export interface ClaudeStatusLine {
+  updated_at: number;
+  model?: string;
+  context_percent?: number;
+  cost_usd?: number;
+  five_hour?: { used_percentage: number; resets_at?: number };
+  seven_day?: { used_percentage: number; resets_at?: number };
+}
+
 export interface ConversationMetadata {
+  status_line?: ClaudeStatusLine;
   model: string | null;
   /** Recorded reasoning effort / thinking level; null means not reported. */
   reasoning_effort: string | null;

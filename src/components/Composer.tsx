@@ -16,6 +16,7 @@ import { ArrowUp, Clock, FileText, Plus, Square, X } from "lucide-react";
 
 import "./Composer.css";
 
+import { ClaudeStatusLine } from "./ClaudeStatusLine.tsx";
 import type { AgentStatus, ConversationMetadata, SlashCommand } from "../../shared/protocol.ts";
 import { useMachineApi, useMachineId } from "../lib/machineContext.tsx";
 import { composerDrafts } from "../lib/composerDraft.ts";
@@ -1031,6 +1032,7 @@ export function Composer({
       </div>
       {note && <div className="composer-note" role="alert">{note}</div>}
       <TranslationToggle />
+      <ClaudeStatusLine status={metadata?.status_line} />
       {sending && settings.translationMode && <div className="composer-hint" role="status">{t("Translating and sending…")}</div>}
       {/* said while typing, before the send: after it the browser is already open and the reader is
           already in the state the words describe. Not a block — the text still goes, and pi runs the

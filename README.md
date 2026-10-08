@@ -109,3 +109,7 @@ UI_EVIDENCE_DIR=evidence/file-viewer bun scripts/file-viewer-regression.ts
 本项目遵循 [MIT 许可证](LICENSE)，保留原作者归属：版权所有 © 2026 devswha。
 
 感谢 [devswha/herdr-web-ui](https://github.com/devswha/herdr-web-ui) 的原作者和贡献者，以及提供底层引擎的 [herdrdev/herdr](https://github.com/herdrdev/herdr)。界面与服务使用 React、xterm.js、Bun 和 Lucide 等项目。
+
+## 会话状态同步
+
+聊天输入框下方可显示 Claude Code 原生状态：模型、上下文占用、会话估算费用、5 小时与周额度及重置时间。按会话匹配并标注更新时间；缺失指标不显示。安装与验收见[会话状态说明](docs/statusline.md)。

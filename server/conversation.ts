@@ -28,6 +28,7 @@
  * integration and lives in paneConversation.
  */
 
+import { readClaudeStatusLine } from "./claude-statusline.ts";
 import { createHash, randomUUID } from "node:crypto";
 import { closeSync, openSync, readFileSync, readSync, realpathSync, statSync } from "node:fs";
 import nodePath, { type PlatformPath } from "node:path";
@@ -890,6 +891,10 @@ export async function paneConversation(paneId: string, codexHome?: string, page:
     : resolved.source === "pi-transcript" || resolved.source === "omp-transcript" ? realpathSync(resolved.path) : null;
   const answer = transcriptPage(resolved.source, resolved.path, page, resolved.codexHome ?? codexHome);
   if (identity !== null) writtenSessions.add(`${resolved.source}\0${identity}`);
+  if (resolved.source === "claude-transcript" && page.before === undefined) {
+    const status = readClaudeStatusLine(resolved.path);
+    if (status) return { ...answer, metadata: { ...answer.metadata, status_line: status }, version: answerVersion(answer.version, JSON.stringify(status)) };
+  }
   return answer;
 }
 

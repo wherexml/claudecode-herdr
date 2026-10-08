@@ -8,6 +8,14 @@
  * in English. Placeholders in braces keep their English names.
  */
 export const JA: Record<string, string> = {
+  "Session status": "セッション状態",
+  "Context used": "コンテキスト使用率",
+  "Estimated session cost": "セッション推定費用",
+  "Resets at": "リセット時刻",
+  "5-hour usage": "5時間使用率",
+  "Weekly usage": "週間使用率",
+  "Updated at": "更新時刻",
+
   "Translation settings": "翻訳設定",
   "Translation service": "翻訳サービス",
   "API protocol": "API プロトコル",

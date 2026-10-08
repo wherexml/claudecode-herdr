@@ -13,3 +13,5 @@ Translation settings use the encrypted server-side config described in docs/tran
 公开仓库为 `wherexml/claudecode-herdr`，保留上游归属，README 使用简体中文；发布边界见 AGENTS.md。
 
 CI socket 路径长度约束见 AGENTS.md 和 docs/publishing.zh.md。
+
+Claude 原生状态同步见 [docs/statusline.md](docs/statusline.md)。只读取已绑定会话的指标快照，保留原 statusLine 输出，不采集完整输入，不将缺失额度推算为零。

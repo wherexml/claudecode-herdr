@@ -10,6 +10,14 @@
  * Placeholders in braces keep their English names.
  */
 export const ZH: Record<string, string> = {
+  "Session status": "会话状态",
+  "Context used": "上下文已用",
+  "Estimated session cost": "会话估算",
+  "Resets at": "重置于",
+  "5-hour usage": "5 小时已用",
+  "Weekly usage": "本周已用",
+  "Updated at": "更新于",
+
   "Translation settings": "翻译设置",
   "Translation service": "翻译服务",
   "API protocol": "API 协议",

@@ -1,0 +1,15 @@
+.claude-statusline {
+  width: min(100%, var(--chat-w));
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  overflow-x: auto;
+  white-space: nowrap;
+  color: var(--text-dim);
+  font-size: var(--fs-2xs);
+  padding-block: var(--space-1);
+  font-variant-numeric: tabular-nums;
+}
+.claude-statusline-updated { margin-left: auto; }
+.prompt-dock:not(:empty) ~ .composer .claude-statusline { display: none; }
