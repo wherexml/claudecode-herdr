@@ -9,9 +9,8 @@ const resetFull = new Intl.DateTimeFormat("en-US", { timeZone: pacific, dateStyl
 
 export function ClaudeStatusLine({ status }: { status?: Status }) {
   const t = useT();
-  if (!status || (status.cost_usd === undefined && !status.five_hour && !status.seven_day)) return null;
+  if (!status || (!status.five_hour && !status.seven_day)) return null;
   return <div className="claude-statusline" role="status" aria-label={t("Session status")}>
-    {status.cost_usd !== undefined && <span>{t("Estimated session cost")} ${status.cost_usd.toFixed(2)}</span>}
     {([status.five_hour, status.seven_day] as const).map((window, i) => {
       if (!window) return null;
       const label = i === 0 ? t("5-hour usage") : t("Weekly usage");
@@ -24,6 +23,5 @@ export function ClaudeStatusLine({ status }: { status?: Status }) {
         {reset && <span>reset at {(i === 0 ? resetTime : resetDay).format(reset)}</span>}
       </span>;
     })}
-    {(status.five_hour || status.seven_day) && <span className="claude-statusline-zone">{t("Pacific time")}</span>}
   </div>;
 }

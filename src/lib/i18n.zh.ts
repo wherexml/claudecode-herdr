@@ -11,7 +11,6 @@
  */
 export const ZH: Record<string, string> = {
   "Session status": "会话状态",
-  "Estimated session cost": "会话估算",
   "5-hour usage": "5 小时已用",
   "Weekly usage": "本周已用",
 

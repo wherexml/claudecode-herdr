@@ -1031,8 +1031,10 @@ export function Composer({
         </div>
       </div>
       {note && <div className="composer-note" role="alert">{note}</div>}
-      <TranslationToggle />
-      <ClaudeStatusLine status={metadata?.status_line} />
+      <div className="composer-footer">
+        <TranslationToggle />
+        <ClaudeStatusLine status={metadata?.status_line} />
+      </div>
       {sending && settings.translationMode && <div className="composer-hint" role="status">{t("Translating and sending…")}</div>}
       {/* said while typing, before the send: after it the browser is already open and the reader is
           already in the state the words describe. Not a block — the text still goes, and pi runs the

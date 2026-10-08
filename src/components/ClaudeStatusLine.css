@@ -1,6 +1,6 @@
 .claude-statusline {
-  width: min(100%, var(--chat-w));
-  margin-inline: auto;
+  min-width: 0;
+  margin-left: auto;
   display: flex;
   align-items: center;
   gap: var(--space-3);

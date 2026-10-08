@@ -112,4 +112,4 @@ UI_EVIDENCE_DIR=evidence/file-viewer bun scripts/file-viewer-regression.ts
 
 ## 会话状态同步
 
-聊天输入框下方可显示 Claude Code 原生状态：会话估算费用、5h 与 7d 额度进度条及美西重置时间。按会话匹配；缺失指标不显示。安装与验收见[会话状态说明](docs/statusline.md)。
+聊天输入框下方可显示 Claude Code 原生状态：翻译模式同一行右侧的 5h 与 7d 额度进度条及美西重置时间。按会话匹配；缺失指标不显示。安装与验收见[会话状态说明](docs/statusline.md)。

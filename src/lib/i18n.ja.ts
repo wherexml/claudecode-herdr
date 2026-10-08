@@ -9,7 +9,6 @@
  */
 export const JA: Record<string, string> = {
   "Session status": "セッション状態",
-  "Estimated session cost": "セッション推定費用",
   "5-hour usage": "5時間使用率",
   "Weekly usage": "週間使用率",
 

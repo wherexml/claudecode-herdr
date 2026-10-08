@@ -1,6 +1,6 @@
 # 聊天页会话状态
 
-输入框下方读取当前 Claude Code 会话的原生 statusLine 数据，显示会话估算费用，以及 5h、7d 额度进度条。模型、上下文和更新时间不展示。重置时间固定为 America/Los_Angeles，自动处理夏令时：5h 显示 `reset at 20:00`，7d 显示 `reset at Wed`；悬停查看占用百分比及完整美西日期；额度没有返回就不显示，不推算、不跨会话复用。费用是 Claude Code 的客户端估算，不代表实际账单。
+输入框下方读取当前 Claude Code 会话的原生 statusLine 数据，在翻译模式同一行右侧显示 5h、7d 额度进度条。费用、模型、上下文和更新时间不展示，重置标签末尾不重复显示时区文案。重置时间固定为 America/Los_Angeles，自动处理夏令时：5h 显示 `reset at 20:00`，7d 显示 `reset at Wed`；悬停查看占用百分比及完整美西日期；额度没有返回就不显示，不推算、不跨会话复用。费用是 Claude Code 的客户端估算，不代表实际账单。
 
 ## 数据链路
 
@@ -20,6 +20,6 @@
 
 ## 验收
 
-运行 `bun run build`，然后 `HERDR_TEST_SESSION=herdr-web-ui-test-status bun scripts/statusline-fixture.ts`。fixture 使用独立 Herdr 会话和临时 Claude 存储，不调用真实模型。打开输出 URL，切到聊天视图，检查电脑和窄屏：仅显示 $3.46、61% 五小时和18%周额度进度条，不出现模型、上下文和更新时间；重置标签为美西时区的时间与星期。横向滚动仅发生在状态栏，页面不溢出。
+运行 `bun run build`，然后 `HERDR_TEST_SESSION=herdr-web-ui-test-status bun scripts/statusline-fixture.ts`。fixture 使用独立 Herdr 会话和临时 Claude 存储，不调用真实模型。打开输出 URL，切到聊天视图，检查电脑和窄屏：仅显示 61% 五小时和18%周额度进度条，与翻译模式同行靠右；不出现费用、模型、上下文、更新时间或重复时区文案；重置标签为美西时区的时间与星期。横向滚动仅发生在状态栏，页面不溢出。
 
 脚本验证原命令输出保留、快照权限、字段白名单、缺失与非法值隐藏、会话错配拒绝、ETag 随快照改变。接口证据写入忽略的 `evidence/statusline/api.json`，浏览器截图也保存于该目录。结束时停止 fixture 并关闭独立测试会话。

@@ -144,7 +144,7 @@
 
 .composer-quick,
 .composer-surface,
-.translation-controls,
+.composer-footer,
 .composer-note {
   width: min(100%, var(--chat-w));
   margin-inline: auto;
@@ -1239,6 +1239,22 @@
 }
 
 /* Prompt answers bypass translation. Keep their options and transcript visible on short screens. */
-.prompt-dock:not(:empty) ~ .composer .translation-controls {
+.prompt-dock:not(:empty) ~ .composer .composer-footer {
   display: none;
+}
+
+.composer-footer {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding-top: var(--space-2);
+}
+.composer-footer .translation-controls {
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
+  padding-top: 0;
+}
+@media (max-width: 760px) {
+  .composer-footer { overflow-x: auto; }
+  .composer-footer .claude-statusline { flex: 0 0 auto; }
 }

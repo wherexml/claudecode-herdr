@@ -48,6 +48,7 @@ export function TranslationToggle() {
     <span className="translation-mode-control">
     <button type="button" className="translation-toggle" role="switch" aria-checked={settings.translationMode}
       aria-description={t("Send in English · Read in Chinese")}
+      title={t("Send in English · Read in Chinese")}
       disabled={!settings.translationMode && configured !== true}
       onClick={() => update({ translationMode: !settings.translationMode })}>
       <Languages aria-hidden="true" /><span>{t("Translation mode")}</span>
